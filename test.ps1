@@ -3,5 +3,5 @@
 # | Select-HtmlNode -SelectSingleNode 'title'
 # | Select-Object -ExpandProperty InnerText
 
-ConvertTo-HtmlDocument https://www.volkskrant.nl/columns/Sylvia-witteman
-| Select-HtmlNode -SelectNodes 'article'
+ConvertTo-HtmlDocument 'https://www.volkskrant.nl/columns/Sylvia-witteman'
+| Select-HtmlNode -SelectSingleNode '//article'
