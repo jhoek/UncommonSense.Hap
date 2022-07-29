@@ -10,8 +10,8 @@ public class SelectHtmlNodeCmdlet : PSCmdlet
         public const string SelectNodes = nameof(SelectNodes);
     }
 
-    [Parameter(Mandatory = true, ValueFromPipeline = true)]
-    [HtmlNodeArgumentTransformation()]
+    [Parameter(Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+    [Alias("DocumentNode")]
     public HtmlNode[] InputObject { get; set; }
 
     [Parameter(Mandatory = true, ParameterSetName = ParameterSets.SelectSingleNode)]
@@ -22,7 +22,7 @@ public class SelectHtmlNodeCmdlet : PSCmdlet
 
     protected override void ProcessRecord() =>
         WriteObject(
-            InputObject.Select(i => ProcessInputObject(i)),
+            InputObject.Select(i => ProcessInputObject(i)).ToArray(),
             true
         );
 
@@ -31,11 +31,16 @@ public class SelectHtmlNodeCmdlet : PSCmdlet
         switch (ParameterSetName)
         {
             case ParameterSets.SelectSingleNode:
-                return inputObject.SelectSingleNode(SelectSingleNode).ToEnumerable();
+                yield return inputObject.SelectSingleNode(SelectSingleNode);
+                break;
+
             case ParameterSets.SelectNodes:
-                return inputObject.SelectNodes(SelectNodes);
+                foreach (var node in inputObject.SelectNodes(SelectNodes))
+                    yield return node;
+                break;
+
             default:
-                return Enumerable.Empty<HtmlNode>();
+                yield break;
         }
     }
 }
