@@ -21,10 +21,10 @@ public class SelectHtmlNodeCmdlet : PSCmdlet
     public string SelectNodes { get; set; }
 
     protected override void ProcessRecord() =>
-        InputObject
-            .SelectMany(i => ProcessInputObject(i))
-            .ToList()
-            .ForEach(i => WriteObject(i));
+        WriteObject(
+            InputObject.SelectMany(i => ProcessInputObject(i)),
+            true
+        );
 
     protected IEnumerable<HtmlNode> ProcessInputObject(HtmlNode inputObject)
     {
