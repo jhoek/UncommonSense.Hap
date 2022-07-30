@@ -1,13 +1,12 @@
 namespace UncommonSense.Hap;
 
 [Cmdlet(VerbsCommon.Select, "HtmlNode")]
-[OutputType(typeof(HtmlNode), ParameterSetName = new[] { ParameterSets.SelectSingleNode })]
+[OutputType(typeof(HtmlNode), ParameterSetName = new[] { ParameterSets.XPath })]
 public class SelectHtmlNodeCmdlet : PSCmdlet
 {
     public static class ParameterSets
     {
-        public const string SelectSingleNode = nameof(SelectSingleNode);
-        public const string SelectNodes = nameof(SelectNodes);
+        public const string XPath = nameof(XPath);
         public const string CssSelector = nameof(CssSelector);
     }
 
@@ -15,14 +14,14 @@ public class SelectHtmlNodeCmdlet : PSCmdlet
     [Alias("DocumentNode")]
     public HtmlNode[] InputObject { get; set; }
 
-    [Parameter(Mandatory = true, ParameterSetName = ParameterSets.SelectSingleNode)]
-    public string SelectSingleNode { get; set; }
-
-    [Parameter(Mandatory = true, ParameterSetName = ParameterSets.SelectNodes)]
-    public string SelectNodes { get; set; }
+    [Parameter(Mandatory = true, ParameterSetName = ParameterSets.XPath)]
+    public string XPath { get; set; }
 
     [Parameter(Mandatory = true, ParameterSetName = ParameterSets.CssSelector)]
     public string CssSelector { get; set; }
+
+    [Parameter()]
+    public SwitchParameter All { get; set; }
 
     protected override void ProcessRecord() =>
         WriteObject(
@@ -34,18 +33,23 @@ public class SelectHtmlNodeCmdlet : PSCmdlet
     {
         switch (ParameterSetName)
         {
-            case ParameterSets.SelectSingleNode:
-                yield return inputObject.SelectSingleNode(SelectSingleNode);
+            case ParameterSets.XPath when !All:
+                yield return inputObject.SelectSingleNode(XPath);
                 break;
 
-            case ParameterSets.SelectNodes:
-                foreach (var node in inputObject.SelectNodes(SelectNodes) ?? Enumerable.Empty<HtmlNode>())
+            case ParameterSets.XPath when All:
+                foreach (var node in inputObject.SelectNodes(XPath) ?? Enumerable.Empty<HtmlNode>())
                     yield return node;
                 break;
 
-            case ParameterSets.CssSelector:
+            case ParameterSets.CssSelector when !All:
                 var result = inputObject.QuerySelector(CssSelector);
                 if (result is not null) yield return result;
+                break;
+
+            case ParameterSets.CssSelector when All:
+                foreach (var node in inputObject.QuerySelectorAll(CssSelector))
+                    yield return node;
                 break;
 
             default:
