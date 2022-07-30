@@ -8,6 +8,7 @@ public class SelectHtmlNodeCmdlet : PSCmdlet
     {
         public const string SelectSingleNode = nameof(SelectSingleNode);
         public const string SelectNodes = nameof(SelectNodes);
+        public const string CssSelector = nameof(CssSelector);
     }
 
     [Parameter(Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
@@ -19,6 +20,9 @@ public class SelectHtmlNodeCmdlet : PSCmdlet
 
     [Parameter(Mandatory = true, ParameterSetName = ParameterSets.SelectNodes)]
     public string SelectNodes { get; set; }
+
+    [Parameter(Mandatory = true, ParameterSetName = ParameterSets.CssSelector)]
+    public string CssSelector { get; set; }
 
     protected override void ProcessRecord() =>
         WriteObject(
@@ -35,8 +39,13 @@ public class SelectHtmlNodeCmdlet : PSCmdlet
                 break;
 
             case ParameterSets.SelectNodes:
-                foreach (var node in inputObject.SelectNodes(SelectNodes))
+                foreach (var node in inputObject.SelectNodes(SelectNodes) ?? Enumerable.Empty<HtmlNode>())
                     yield return node;
+                break;
+
+            case ParameterSets.CssSelector:
+                var result = inputObject.QuerySelector(CssSelector);
+                if (result is not null) yield return result;
                 break;
 
             default:

@@ -3,5 +3,8 @@
 # | Select-HtmlNode -SelectSingleNode 'title'
 # | Select-Object -ExpandProperty InnerText
 
-ConvertTo-HtmlDocument 'https://www.volkskrant.nl/columns/Sylvia-witteman'
-| Select-HtmlNode -SelectSingleNode '//article'
+Invoke-WebRequest 'https://www.volkskrant.nl/columns/Sylvia-Witteman'
+| Select-Object -ExpandProperty Content
+| ConvertTo-HtmlDocument
+| Select-HtmlNode -SelectNodes '//article//h3'
+| Select-Object -ExpandProperty InnerText
