@@ -6,4 +6,10 @@ public static class ExtensionMethods
     {
         yield return item;
     }
+
+    public static void AddRange<T>(this PSMemberInfoCollection<T> collection, IEnumerable<T> items) where T : PSMemberInfo
+    {
+        foreach (var item in items)
+            collection.Add(item);
+    }
 }
