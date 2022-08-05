@@ -9,7 +9,7 @@
 # | Select-HtmlNode -CssSelector '.teaser--compact h3' -All
 # | Select-Object -ExpandProperty InnerText
 
-$Property = @{
+$Property = [Ordered]@{
     DateTime    = 'h5.modal-title'
     Title       = 'h2.text-color-secondary'
     Speakers    = 'h2.accordion-header button'
