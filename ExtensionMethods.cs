@@ -15,6 +15,6 @@ public static class ExtensionMethods
             collection.Add(item);
     }
 
-    public static string Replace(this string input, string pattern, string replacement) =>
+    public static string RegexReplace(this string input, string pattern, string replacement) =>
         Regex.Replace(input, pattern, replacement);
 }

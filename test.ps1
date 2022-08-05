@@ -10,6 +10,5 @@
 # | Select-Object -ExpandProperty InnerText
 
 ConvertTo-HtmlDocument -Uri https://bctechdays.com/event
-| Select-HtmlNode -CssSelector '.modal[aria-labelledby^="event-detail-"] .modal-header' -All
-| Convert-HtmlNode @{DateTime = 'h5' } -TypeName 'UncommonSense.BcTechDays.ScheduledEvent' -Mode CssSelector
-| Select-Object -ExpandProperty DateTime
+| Select-HtmlNode -CssSelector '.modal[aria-labelledby^="event-detail-"] .modal-content' -All
+| Convert-HtmlNode @{DateTime = 'h5.modal-title'; Title = 'h2.text-color-secondary'; Speakers = 'h2.accordion-header button' } -TypeName 'UncommonSense.BcTechDays.ScheduledEvent' -Mode CssSelector -Verbose
