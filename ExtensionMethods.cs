@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace UncommonSense.Hap;
 
 public static class ExtensionMethods
@@ -12,4 +14,7 @@ public static class ExtensionMethods
         foreach (var item in items)
             collection.Add(item);
     }
+
+    public static string Replace(this string input, string pattern, string replacement) =>
+        Regex.Replace(input, pattern, replacement);
 }

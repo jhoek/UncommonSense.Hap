@@ -22,6 +22,9 @@ public class ConvertHtmlNodeCmdlet : PSCmdlet
     [ValidateNotNull()]
     public string[] TypeName { get; set; } = Array.Empty<string>();
 
+    [Parameter()]
+    public SwitchParameter SkipTrimValue { get; set; }
+
     protected override void ProcessRecord()
     {
         WriteObject(
@@ -53,16 +56,23 @@ public class ConvertHtmlNodeCmdlet : PSCmdlet
 
     protected PSNoteProperty GetProperty(HtmlNode inputObject, string propertyName, string query)
     {
-        return new PSNoteProperty(
-            propertyName,
-            GetPropertyValue(inputObject, query)
-        );
+        var propertyValue = GetPropertyValue(inputObject, query);
+        WriteVerbose($"Raw value is ")
+
+        if (!SkipTrimValue)
+            propertyValue = propertyValue.Select(s => s.Trim().Replace(@"\s{2,}", " "));
+
+        switch (propertyValue.Skip(1).Any())
+        {
+            case true: return new(propertyName, propertyValue);
+            case false: return new(propertyName, propertyValue.FirstOrDefault());
+        }
     }
 
-    protected object GetPropertyValue(HtmlNode inputObject, string query) => Mode switch
+    protected IEnumerable<string> GetPropertyValue(HtmlNode inputObject, string query) => Mode switch
     {
-        QueryMode.XPath => inputObject.SelectNodes(query).Select(n => n.GetDirectInnerText()),
-        QueryMode.CssSelector => inputObject.QuerySelectorAll(query).Select(n => n.GetDirectInnerText()),
+        QueryMode.XPath => inputObject.SelectNodes(query).Select(n => n.InnerText),
+        QueryMode.CssSelector => inputObject.QuerySelectorAll(query).Select(n => n.InnerText),
         _ => null,
     };
 }
