@@ -15,8 +15,8 @@
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <!-- <Exec Command="pwsh -Command &quot;Copy-Item $(ProjectDir)format.ps1xml $(TargetDir)$(TargetName).format.ps1xml&quot;" /> -->
-        <Exec Command="pwsh -Command &quot;New-BinaryModuleManifest -Path $(TargetDir)$(TargetName).psd1 -ModulePath $(ProjectDir) -Guid 0dd0f3fa-b0a8-4f46-95a4-498fa19adc60 -Author 'Jan Hoek' -Description 'PowerShell wrapper for Html Agility Pack' -Verbose&quot;" />
+        <Exec Command="pwsh -Command &quot;New-BinaryModuleManifest -Path $(TargetDir)$(TargetName).psd1 -ModulePath $(ProjectDir) -Guid 0dd0f3fa-b0a8-4f46-95a4-498fa19adc60 -Author 'Jan Hoek' -CompanyName 'uncommonsense.nl' -Description 'PowerShell wrapper for Html Agility Pack' -Verbose&quot;" />
+        <Exec Command="pwsh -Command &quot;Update-ModuleManifest -Path $(TargetDir)$(TargetName).psd1 -LicenseUri 'https://github.com/jhoek/UncommonSense.Hap/blob/master/LICENSE.md' -ProjectUri 'https://github.com/jhoek/UncommonSense.Hap'&quot;" />
     </Target>
 </Project>
 
