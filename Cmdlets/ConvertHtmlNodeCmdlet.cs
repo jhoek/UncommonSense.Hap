@@ -82,7 +82,8 @@ public class ConvertHtmlNodeCmdlet : PSCmdlet
             SkipDeentitize,
             SkipTrim,
             SkipRemoveLineBreaks,
-            SkipFlattenWhitespace
+            SkipFlattenWhitespace,
+            writeVerbose: s => WriteVerbose(s)
         );
 
         return new(propertyName, value);

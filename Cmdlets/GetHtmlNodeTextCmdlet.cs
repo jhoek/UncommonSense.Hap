@@ -37,7 +37,8 @@ public class GetHtmlNodeTextCmdlet : Cmdlet
                 SkipRemoveLineBreaks,
                 SkipFlattenWhitespace,
                 AllowEmptyStrings,
-                Separator
+                Separator,
+                s => WriteVerbose(s)
             )
         );
     }
