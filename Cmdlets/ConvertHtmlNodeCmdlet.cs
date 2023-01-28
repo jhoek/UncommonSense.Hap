@@ -23,6 +23,12 @@ public class ConvertHtmlNodeCmdlet : PSCmdlet
     public string[] TypeName { get; set; } = Array.Empty<string>();
 
     [Parameter()]
+    public SwitchParameter DirectInnerTextOnly { get; set; }
+
+    [Parameter()]
+    public SwitchParameter SkipDeentitize { get; set; }
+
+    [Parameter()]
     public SwitchParameter SkipTrim { get; set; }
 
     [Parameter()]
@@ -64,49 +70,22 @@ public class ConvertHtmlNodeCmdlet : PSCmdlet
     {
         WriteVerbose($"Building property '{propertyName}' using query '{query}'");
 
-        var propertyValue = GetPropertyValue(inputObject, query);
-        WriteVerbose($"Raw value is '{FormatPropertyValue(propertyValue)}'");
-
-        propertyValue = propertyValue.Select(s => HtmlEntity.DeEntitize(s));
-        WriteVerbose($"Value with converted entities is '{FormatPropertyValue(propertyValue)}'");
-
-        if (!SkipTrim)
+        var nodes = Mode switch
         {
-            propertyValue = propertyValue.Select(s => s.Trim());
-            WriteVerbose($"Trimmed value is '{FormatPropertyValue(propertyValue)}'");
-        }
+            QueryMode.XPath => inputObject.SelectNodes(query),
+            QueryMode.CssSelector => inputObject.QuerySelectorAll(query),
+            _ => null,
+        };
 
-        if (!SkipRemoveLineBreaks)
-        {
-            propertyValue = propertyValue.Select(s => s.RegexReplace(@"\n", ""));
-            WriteVerbose($"Value with line breaks removed is '{FormatPropertyValue(propertyValue)}'");
-        }
+        var value = nodes.GetHtmlNodeText(
+            DirectInnerTextOnly,
+            SkipDeentitize,
+            SkipTrim,
+            SkipRemoveLineBreaks,
+            SkipFlattenWhitespace,
+            writeVerbose: s => WriteVerbose(s)
+        );
 
-        if (!SkipFlattenWhitespace)
-        {
-            propertyValue = propertyValue.Select(s => s.RegexReplace(@"\s{2,}", " "));
-            WriteVerbose($"Value with whitespace flattened is '{FormatPropertyValue(propertyValue)}'");
-        }
-
-        switch (propertyValue.Skip(1).Any())
-        {
-            case true:
-                WriteVerbose("Value is a list");
-                return new(propertyName, propertyValue);
-
-            case false:
-                WriteVerbose("Value is a single string");
-                return new(propertyName, propertyValue.FirstOrDefault());
-        }
+        return new(propertyName, value);
     }
-
-    protected IEnumerable<string> GetPropertyValue(HtmlNode inputObject, string query) => Mode switch
-    {
-        QueryMode.XPath => inputObject.SelectNodes(query).Select(n => n.InnerText),
-        QueryMode.CssSelector => inputObject.QuerySelectorAll(query).Select(n => n.InnerText),
-        _ => null,
-    };
-
-    protected static string FormatPropertyValue(IEnumerable<string> propertyValue) =>
-        string.Join(", ", propertyValue);
 }
