@@ -37,6 +37,10 @@ public class ConvertHtmlNodeCmdlet : PSCmdlet
     [Parameter()]
     public SwitchParameter SkipFlattenWhitespace { get; set; }
 
+    [Parameter()]
+    [ValidateNotNull()]
+    public string Separator { get; set; } = " ";
+
     protected override void ProcessRecord()
     {
         WriteObject(
@@ -83,6 +87,7 @@ public class ConvertHtmlNodeCmdlet : PSCmdlet
             SkipTrim,
             SkipRemoveLineBreaks,
             SkipFlattenWhitespace,
+            separator: Separator,
             writeVerbose: s => WriteVerbose(s)
         );
 
